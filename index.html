@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2f6f9f">
+<meta name="description" content="Confirmação de presença — 1º aniversário do Lucca">
+<title>Confirmação de Presença — Lucca</title>
+<style>
+  :root{
+    --blue:#2f6f9f; --blue-dark:#1f4f78; --cream:#fff8e9;
+    --gold:#e7b84b; --brown:#5b3b25; --green:#2f8050;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Arial,Helvetica,sans-serif;
+    background:linear-gradient(180deg,#d9efff 0,#fff8e9 45%,#f6dfad 100%);
+    color:#3d3026;min-height:100vh;
+  }
+  .wrap{max-width:620px;margin:auto;padding:18px 14px 40px}
+  .hero{
+    background:var(--blue);color:#fff;border:4px solid var(--gold);
+    border-radius:24px;padding:26px 18px;text-align:center;
+    box-shadow:0 10px 28px #0002;position:relative;overflow:hidden;
+  }
+  .hero:before,.hero:after{content:"✦";position:absolute;color:#ffe8a4;font-size:40px}
+  .hero:before{left:18px;top:12px}.hero:after{right:18px;bottom:8px}
+  .badge{font-size:38px}
+  h1{font-size:30px;margin:7px 0 5px}
+  .subtitle{font-size:17px;margin:0}
+  .date{margin-top:16px;background:#fff;color:var(--blue-dark);font-weight:bold;
+        border-radius:12px;padding:11px}
+  .card{
+    background:#fff;border-radius:20px;padding:20px;margin-top:16px;
+    box-shadow:0 6px 20px #00000014;border:1px solid #eadfca;
+  }
+  h2{font-size:19px;color:var(--blue-dark);margin:0 0 14px}
+  label{display:block;font-weight:bold;margin:12px 0 6px}
+  input,select,textarea{
+    width:100%;padding:13px;border:1px solid #cfc5b5;border-radius:11px;
+    font-size:16px;background:#fff;
+  }
+  textarea{min-height:80px;resize:vertical}
+  .choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .choice label{
+    margin:0;border:2px solid #ddd3c4;border-radius:12px;padding:12px;
+    cursor:pointer;text-align:center;background:#fff;
+  }
+  .choice input{display:none}
+  .choice label:has(input:checked){border-color:var(--blue);background:#edf7ff}
+  #familyList{display:grid;gap:9px}
+  .person{display:flex;gap:8px;align-items:center}
+  .person input{flex:1}
+  .person select{width:130px}
+  .remove{border:0;background:#f4e4d7;color:#8b422d;border-radius:10px;padding:11px;cursor:pointer}
+  .add{
+    width:100%;margin-top:10px;padding:12px;border:2px dashed #b9a98e;
+    border-radius:11px;background:#fffaf0;color:var(--brown);font-weight:bold;cursor:pointer
+  }
+  .limitMessage{
+    display:none;margin-top:10px;padding:12px;border-radius:11px;
+    background:#fff3d6;border:1px solid #e7c878;color:#72541d;
+    font-size:14px;line-height:1.4;text-align:center;font-weight:bold;
+  }
+  .summary{
+    background:#eef8f1;border:1px solid #c9e2d1;border-radius:14px;padding:14px;
+    margin-top:14px;display:none
+  }
+  .summary strong{color:var(--green)}
+  .submit{
+    width:100%;border:0;border-radius:14px;padding:16px;margin-top:18px;
+    background:var(--blue);color:#fff;font-size:18px;font-weight:bold;cursor:pointer;
+    box-shadow:0 6px 15px #2f6f9f44
+  }
+  .submit:hover{background:var(--blue-dark)}
+  .success{display:none;text-align:center}
+  .success .icon{font-size:60px}
+  .small{font-size:13px;color:#776d61;text-align:center;margin-top:12px}
+  .error{color:#a33b2c;font-size:13px;margin-top:6px;display:none}
+  footer{text-align:center;font-size:12px;color:#746858;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="badge">🤠🎂</div>
+    <h1>O Xerife Lucca faz 1 ano!</h1>
+    <p class="subtitle">Ihaaa! Vamos comemorar esse dia especial juntos!</p>
+    <div class="date">📅 19 de setembro de 2026 • ⏰ 14h</div>
+  </header>
+
+  <main id="formArea">
+    <section class="card">
+      <h2>👤 1. Dados do responsável</h2>
+      <label for="responsavel">Nome completo *</label>
+      <input id="responsavel" type="text" placeholder="Digite seu nome" autocomplete="name">
+      <div id="errResp" class="error">Preencha o nome do responsável.</div>
+    </section>
+
+    <section class="card">
+      <h2>🎉 2. Você poderá comparecer?</h2>
+      <div class="choice">
+        <label><input type="radio" name="presenca" value="sim" checked>✅ Sim, vou!</label>
+        <label><input type="radio" name="presenca" value="nao">❌ Não poderei</label>
+      </div>
+    </section>
+
+    <section class="card" id="familiaCard">
+      <h2>👨‍👩‍👧‍👦 3. Quem irá com você?</h2>
+      <p style="margin-top:0;color:#6c6258">Adicione cada familiar ou acompanhante que estará na festa.</p>
+      <div id="familyList"></div>
+      <button type="button" class="add" id="addBtn" onclick="addPerson()">＋ Adicionar acompanhante</button>
+      <div class="limitMessage" id="limitMessage">⚠️ O convite se estende apenas a familiares do convidado.</div>
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <section class="card">
+      <h2>📝 4. Observação</h2>
+      <textarea id="obs" placeholder="Alguma informação que precisamos saber? (opcional)"></textarea>
+      <button class="submit" type="button" onclick="submitRSVP()">🤠 Confirmar minha presença</button>
+      <p class="small">Se você não puder comparecer, basta selecionar “Não poderei” e confirmar.</p>
+    </section>
+  </main>
+
+  <section class="card success" id="success">
+    <div class="icon">🎉</div>
+    <h2>Presença registrada!</h2>
+    <p>Obrigado por confirmar. Estamos muito felizes em comemorar o 1º aniversário do Lucca com vocês! ❤️</p>
+    <div id="successDetails"></div>
+    <button class="submit" onclick="location.reload()">Nova confirmação</button>
+  </section>
+
+  <footer>🤠 Aniversário do Lucca • 19/09/2026 às 14h</footer>
+</div>
+
+<script>
+  // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBKhONjo5hAfkyaxoMG8mxVuF0X5xq6q8I6u7jHK3k2X-WoAM7qq1Q5shwVEReCVqJsg/exec';
+
+  const list = document.getElementById('familyList');
+  const summary = document.getElementById('summary');
+  const familiaCard = document.getElementById('familiaCard');
+
+  const MAX_ACCOMPANHANTES = 4;
+
+  function addPerson(name='', type='Adulto'){
+    const current = document.querySelectorAll('.person').length;
+    if(current >= MAX_ACCOMPANHANTES){
+      showLimitMessage();
+      return;
+    }
+
+    const row = document.createElement('div');
+    row.className='person';
+    row.innerHTML = `
+      <input type="text" class="pname" placeholder="Nome do familiar" value="${escapeAttr(name)}">
+      <select class="ptype">
+        <option ${type==='Adulto'?'selected':''}>Adulto</option>
+        <option ${type==='Criança'?'selected':''}>Criança</option>
+      </select>
+      <button type="button" class="remove" aria-label="Remover" onclick="this.parentElement.remove();updateSummary()">✕</button>`;
+    list.appendChild(row);
+    row.querySelector('.pname').addEventListener('input',updateSummary);
+    row.querySelector('.ptype').addEventListener('change',updateSummary);
+    updateSummary();
+  }
+
+  function showLimitMessage(){
+    const msg=document.getElementById('limitMessage');
+    msg.style.display='block';
+    setTimeout(()=>{msg.style.display='none'},5000);
+  }
+
+  function escapeAttr(v){
+    return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  function updateSummary(){
+    const rows=[...document.querySelectorAll('.person')];
+    let adults=0, children=0;
+    rows.forEach(r=>{
+      if(r.querySelector('.ptype').value==='Adulto') adults++; else children++;
+    });
+    summary.style.display=rows.length?'block':'none';
+    summary.innerHTML=`<strong>Resumo:</strong> ${adults} adulto(s) + ${children} criança(s) = <strong>${adults+children} pessoa(s)</strong>`;
+    const btn=document.getElementById('addBtn');
+    btn.disabled=rows.length >= MAX_ACCOMPANHANTES;
+    btn.style.opacity=btn.disabled ? '0.55' : '1';
+    btn.style.cursor=btn.disabled ? 'not-allowed' : 'pointer';
+  }
+
+  function getPresence(){
+    return document.querySelector('input[name="presenca"]:checked').value;
+  }
+
+  document.querySelectorAll('input[name="presenca"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      const sim=getPresence()==='sim';
+      familiaCard.style.display=sim?'block':'none';
+      document.querySelector('.submit').textContent=sim?'🤠 Confirmar minha presença':'📩 Enviar confirmação';
+    });
+  });
+
+  async function submitRSVP(){
+    const resp = document.getElementById('responsavel').value.trim();
+    const err = document.getElementById('errResp');
+
+    if(!resp){
+      err.style.display='block';
+      document.getElementById('responsavel').focus();
+      return;
+    }
+
+    err.style.display='none';
+
+    const sim = getPresence()==='sim';
+    const submitButton = document.querySelector('#formArea .submit');
+
+    submitButton.disabled = true;
+    submitButton.textContent = '⏳ Enviando confirmação...';
+
+    let people = [];
+
+    if(sim){
+      people = [...document.querySelectorAll('.person')]
+        .slice(0, MAX_ACCOMPANHANTES)
+        .map(r => ({
+          nome: r.querySelector('.pname').value.trim(),
+          tipo: r.querySelector('.ptype').value
+        }))
+        .filter(p => p.nome);
+    }
+
+    const adults = people.filter(p => p.tipo==='Adulto').length;
+    const children = people.filter(p => p.tipo==='Criança').length;
+
+    const data = {
+      responsavel: resp,
+      presenca: sim ? 'Confirmado' : 'Não poderá comparecer',
+      pessoas: people,
+      adultos: adults,
+      criancas: children,
+      total_pessoas: sim ? 1 + people.length : 0,
+      observacao: document.getElementById('obs').value.trim()
+    };
+
+    const callbackName = 'luccaRSVP_' + Date.now();
+    const script = document.createElement('script');
+
+    window[callbackName] = function(resultado){
+      try {
+        if(!resultado || !resultado.sucesso){
+          throw new Error(
+            resultado && resultado.mensagem
+              ? resultado.mensagem
+              : 'Não foi possível registrar a confirmação.'
+          );
+        }
+
+        document.getElementById('formArea').style.display='none';
+
+        const success = document.getElementById('success');
+        success.style.display='block';
+
+        let html = '';
+
+        if(sim){
+          const total = 1 + people.length;
+          html += `
+            <p><strong>Presença confirmada!</strong></p>
+            <p>${total} pessoa(s) no total</p>
+            <p>${adults + 1} adulto(s) • ${children} criança(s)</p>
+          `;
+        } else {
+          html = `
+            <p><strong>Status:</strong> não poderá comparecer</p>
+          `;
+        }
+
+        document.getElementById('successDetails').innerHTML = html;
+        window.scrollTo({top:0, behavior:'smooth'});
+
+      } catch(error) {
+        console.error('Erro ao registrar confirmação:', error);
+        alert('Não foi possível registrar sua confirmação. Tente novamente.');
+        submitButton.disabled = false;
+        submitButton.textContent = sim ? '🤠 Confirmar minha presença' : '📩 Enviar confirmação';
+      } finally {
+        delete window[callbackName];
+        if(script.parentNode) script.parentNode.removeChild(script);
+      }
+    };
+
+    script.onerror = function(){
+      console.error('Falha de comunicação com o Google Apps Script.');
+      alert('Não foi possível enviar a confirmação. Verifique sua conexão e tente novamente.');
+      submitButton.disabled = false;
+      submitButton.textContent = sim ? '🤠 Confirmar minha presença' : '📩 Enviar confirmação';
+      delete window[callbackName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    script.src = SCRIPT_URL
+      + '?callback=' + encodeURIComponent(callbackName)
+      + '&dados=' + encodeURIComponent(JSON.stringify(data));
+
+    document.body.appendChild(script);
+  }
+
+  // Adiciona um campo de acompanhante inicial por padrão
+  addPerson();
+</script>
+</body>
+</html>
